@@ -57,10 +57,6 @@ def confirm(token):
 
 @auth.before_app_request
 def before_request():
-  # print(current_user.is_authenticated)
-  # print(current_user.confirmed)
-  # print(request.blueprint)
-  # print(request.endpoint)
   if current_user.is_authenticated:
     if not current_user.confirmed and request.blueprint != 'auth' and request.endpoint != 'static':
       return redirect(url_for('auth.unconfirmed'))
