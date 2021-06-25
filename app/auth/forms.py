@@ -35,3 +35,17 @@ class ChangePasswordForm(FlaskForm):
   password = PasswordField('新密码', validators=[DataRequired(), EqualTo('password2', message='两次密码必须一样')])
   password2 = PasswordField('确认密码', validators=[DataRequired()])
   submit = SubmitField('更改密码')
+
+
+class PasswordResetRequestForm(FlaskForm):
+  email = StringField('邮箱', validators=[DataRequired(), Length(1, 64), Email()])
+
+  submit = SubmitField('重置密码')
+
+
+class PasswordResetForm(FlaskForm):
+  password = PasswordField('新密码', validators=[DataRequired(), EqualTo('password2', message='两次密码必须一样')])
+
+  password2 = PasswordField('确认密码', validators=[DataRequired()])
+
+  submit = SubmitField('重置密码')

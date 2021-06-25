@@ -1,6 +1,6 @@
 欢迎注册BIAO！
-   确认账号请点击下面的链接:
-   {{ url_for('auth.confirm', token=token, _external=True) }})
+确认账号请点击下面的链接:
+{{ url_for('auth.confirm', token=token, _external=True) }})
 
-   如果您没有注册请忽略该信息！请不要回复此邮件！
-   BIAO
+如果您没有注册请忽略该信息！请不要回复此邮件！
+BIAO
