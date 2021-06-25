@@ -16,6 +16,7 @@ class Config:
   MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
   SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:''@localhost/flaskBlog'
   SQLALCHEMY_TRACK_MODIFICATIONS = False
+  FLASK_ADMIN = '1208339113@qq.com'
 
   @staticmethod
   def init_app(app):
