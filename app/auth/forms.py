@@ -49,3 +49,15 @@ class PasswordResetForm(FlaskForm):
   password2 = PasswordField('确认密码', validators=[DataRequired()])
 
   submit = SubmitField('重置密码')
+
+
+class ChangeEmailForm(FlaskForm):
+  email = StringField('新邮箱', validators=[DataRequired(), Length(1, 64), Email()])
+
+  password = PasswordField('密码', validators=[DataRequired()])
+  submit = SubmitField('更新邮箱')
+
+  def validate_email(self, field):
+    if User.query.filter_by(email=field.data.lower()).first():
+      raise ValidationError('邮箱已经注册了.')
+

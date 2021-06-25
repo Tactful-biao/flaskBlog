@@ -1,0 +1,8 @@
+亲爱的 {{ user.username }},
+
+点击下面的链接确认邮箱:
+
+{{ url_for('auth.change_email', token=token, _external=True) }}
+
+
+Biao
