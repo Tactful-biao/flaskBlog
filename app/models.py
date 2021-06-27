@@ -3,6 +3,7 @@ from . import db, login_manager
 from flask_login import UserMixin, AnonymousUserMixin
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from datetime import datetime
 
 
 class Permission:
@@ -17,7 +18,7 @@ class Role(db.Model):
   __tablename__ = 'roles'
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(64), unique=True)
-  default = db.Column(db.String(64), unique=False, index=True)
+  default = db.Column(db.Boolean, unique=False, index=True)
   permissions = db.Column(db.Integer)
   users = db.relationship('User', backref='role', lazy='dynamic')
 
@@ -75,6 +76,11 @@ class User(UserMixin, db.Model):
   __tablename__ = 'users'
   id = db.Column(db.Integer, primary_key=True)
   email = db.Column(db.String(64), unique=True, index=True)
+  name = db.Column(db.String(64))
+  location = db.Column(db.String(64))
+  about_me = db.Column(db.Text())
+  member_since = db.Column(db.DATETIME(), default=datetime.now)
+  last_seen = db.Column(db.DATETIME(), default=datetime.now)
   username = db.Column(db.String(64), unique=True, index=True)
   password_hash = db.Column(db.String(128))
   confirmed = db.Column(db.Boolean, default=False)
@@ -91,6 +97,10 @@ class User(UserMixin, db.Model):
 
   def can(self, permissions):
     return self.role is not None and (self.role.permissions & permissions) == permissions
+
+  def ping(self):
+    self.last_seen = datetime.utcnow()
+    db.session.add(self)
 
   def is_administrator(self):
     return self.can(Permission.ADMIN)
