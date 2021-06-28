@@ -4,11 +4,6 @@ from wtforms.validators import DataRequired, Length, Email, Regexp
 from ..models import Role, User
 
 
-class NameForm(FlaskForm):
-  name = StringField('请输入姓名', validators=[DataRequired()])
-  submit = SubmitField('提交')
-
-
 class EditProfileForm(FlaskForm):
   name = StringField('真实姓名', validators=[Length(0, 64)])
   location = StringField('位置', validators=[Length(0, 64)])
@@ -38,3 +33,8 @@ class EditProfileAdminForm(FlaskForm):
   def validate_username(self, field):
     if field.data != self.user.username and User.query.filter_by(username=field.data).first():
       raise ValueError('用户名已经被用了.')
+
+
+class PostForm(FlaskForm):
+  body = TextAreaField('输入你的想法', validators=[DataRequired()])
+  submit = SubmitField('提交')
