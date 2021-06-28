@@ -79,6 +79,7 @@ class User(UserMixin, db.Model):
   username = db.Column(db.String(64), unique=True, index=True)
   password_hash = db.Column(db.String(128))
   confirmed = db.Column(db.Boolean, default=False)
+  avatar_hash = db.Column(db.String(32))
   role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
   def __init__(self, **kwargs):
@@ -89,6 +90,10 @@ class User(UserMixin, db.Model):
 
       if self.role is None:
         self.role = Role.query.filter_by(default=True).first()
+
+    if self.email is not None and self.avatar_hash is None:
+      self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
+
 
   def can(self, permissions):
     return self.role is not None and (self.role.permissions & permissions) == permissions
@@ -159,12 +164,13 @@ class User(UserMixin, db.Model):
       return False
 
     self.email = new_email
+    self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
     db.session.add(self)
     return True
 
   @property
   def password(self):
-    raise AttributeError('password is not a readable attribute')
+    raise AttributeError('密码不可读取')
 
   @password.setter
   def password(self, password):
@@ -179,7 +185,7 @@ class User(UserMixin, db.Model):
     else:
       url = 'http://www.gravatar.com/avatar'
 
-    hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
+    hash = self.avatar_hash or hashlib.md5(self.email.encode('utf-8')).hexdigest()
 
     return f'{url}/{hash}?s={size}&d={default}&r={rating}'
 
