@@ -17,6 +17,7 @@ class Config:
   SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:''@localhost/flaskBlog'
   SQLALCHEMY_TRACK_MODIFICATIONS = False
   FLASK_ADMIN = '1208339113@qq.com'
+  FLASK_POSTS_PER_PAGE = 10
 
   @staticmethod
   def init_app(app):
