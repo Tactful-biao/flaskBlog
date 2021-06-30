@@ -18,6 +18,7 @@ class Config:
   SQLALCHEMY_TRACK_MODIFICATIONS = False
   FLASK_ADMIN = '1208339113@qq.com'
   FLASK_POSTS_PER_PAGE = 10
+  FLASK_COMMENTS_PER_PAGE = 20
 
   @staticmethod
   def init_app(app):
