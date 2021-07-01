@@ -1,12 +1,14 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db, login_manager
 from flask_login import UserMixin, AnonymousUserMixin
-from flask import current_app, request
+from flask import current_app, request, url_for
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from datetime import datetime
 import hashlib
 from markdown import markdown
 import bleach
+from app.exceptions import ValidationError
+
 
 
 class Permission:
@@ -209,7 +211,7 @@ class User(UserMixin, db.Model):
 
   @staticmethod
   def generate_fake(count=100):
-    from sqlalchemy.exc import  IntegrityError
+    from sqlalchemy.exc import IntegrityError
     from random import seed
     import forgery_py
 
@@ -253,6 +255,31 @@ class User(UserMixin, db.Model):
         db.session.add(user)
         db.session.commit()
 
+  def generate_auth_token(self, expiration):
+    s = Serializer(current_app.config['SECRET_KEY'], expiration)
+    return s.dumps({'id': self.id}).decode('utf-8')
+
+  @staticmethod
+  def verify_auth_token(token):
+    s = Serializer(current_app.config['SECRET_KEY'])
+    try:
+      data = s.loads(token.encode('utf-8'))
+    except:
+      return None
+    return User.query.get(data['id'])
+
+  def to_json(self):
+    json_user = {
+      'url': url_for('api.get_post', id=self.id, _external=True),
+      'username': self.username,
+      'member_since': self.member_since,
+      'last_seen': self.last_seen,
+      'posts': url_for('api.get_user_posts', id=self.id, _external=True),
+      'followed_posts': url_for('api.get_user_followed_posts', id=self.id, _external=True),
+      'post_count': self.posts.count()
+    }
+    return json_user
+
   def __repr__(self):
     return '<Users %r>' % self.username
 
@@ -294,6 +321,27 @@ class Post(db.Model):
                author=u)
       db.session.add(p)
       db.session.commit()
+
+  def to_json(self):
+    json_post = {
+      'url': url_for('api.get_post', id=self.id, _external=True),
+      'body': self.body,
+      'body_html': self.body_html,
+      'timestamp': self.timestamp,
+      'author': url_for('api.get_user', id=self.author_id, _external=True),
+      'comments': url_for('api.get_post_comments', id=self.id, _external=True),
+      'comment_count': self.comments.count()
+    }
+    return json_post
+
+  @staticmethod
+  def from_json(json_post):
+    body = json_post.get('body')
+    if body is None or body == '':
+      raise ValidationError('post does not hava a body')
+    return Post(body=body)
+    
+
 
   @staticmethod
   def on_change_body(target, value, oldvalue, initiator):
